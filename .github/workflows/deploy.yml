@@ -14,8 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          node-version: 18
-          cache: npm
           submodules: recursive
           token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v3
@@ -37,14 +35,18 @@ jobs:
           for repo in ${{ steps.get-repos.outputs.repos }}; do
             echo "Processing repository: $repo"
             RELEASE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/ops-frontier/$repo/releases/latest")
-            ASSET_ID=$(echo "$RELEASE" | jq -r '.assets[] | select(.name == "docs.zip") | .id')
-            if [ -n "$ASSET_ID" ]; then
-              echo "Found docs.zip in $repo"
-              curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/octet-stream" "https://api.github.com/repos/ops-frontier/$repo/releases/assets/$ASSET_ID" > docs-source/$repo.zip
-              unzip -o docs-source/$repo.zip -d docs
-              rm docs-source/$repo.zip
+            if [ $(echo "$REELASE" | jq -r '.status') = "404" ]; then
+              echo "No released asset"
             else
-              echo "docs.zip not found in $repo"
+              ASSET_ID=$(echo "$RELEASE" | jq -r '.assets[] | select(.name == "docs.zip") | .id')
+              if [ -n "$ASSET_ID" ]; then
+                echo "Found docs.zip in $repo"
+                curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/octet-stream" "https://api.github.com/repos/ops-frontier/$repo/releases/assets/$ASSET_ID" > docs-source/$repo.zip
+                unzip -o docs-source/$repo.zip -d docs
+                rm docs-source/$repo.zip
+              else
+                echo "docs.zip not found in $repo"
+              fi
             fi
           done
 
