@@ -1,5 +1,6 @@
 ---
 title: Ops Frontier
+sidebar_position: 50
 ---
 
 # 御社 DevSecOps を、最前線（フロンティア）へ。 - Ops Frontier
