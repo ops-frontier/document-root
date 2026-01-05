@@ -12,5 +12,8 @@
   },
   "dependencies": {
     "@ops-frontier/docusaurus": "^0.0.3-rc.0"
+  },
+  "overrides": {
+    "webpack-dev-server": "^5.2.2"
   }
 }
